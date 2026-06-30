@@ -1,6 +1,9 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/user.model');
 const generateToken = require('../utils/generateToken');
+const TokenBlacklist = require('../models/tokenBlacklist.model');
+const jwt = require('jsonwebtoken');
+
 
 const register = async (req, res) => {
   try {
@@ -74,13 +77,35 @@ const login = async (req, res) => {
   }
 };
 
-const logout = (req, res) => {
-  res.clearCookie('token', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-  });
-  res.status(200).json({ message: 'Logged out successfully' });
+const logout = async (req, res) => {
+  try {
+    const token = req.cookies.token;
+
+    if (token) {
+      const decoded = jwt.decode(token); // just reads payload, no verify needed here
+      if (decoded?.exp) {
+        await TokenBlacklist.create({
+          token,
+          expiresAt: new Date(decoded.exp * 1000), // exp is in seconds, Date needs ms
+        });
+      }
+    }
+
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    });
+
+    res.status(200).json({ message: 'Logged out successfully' });
+  } catch (err) {
+    console.error('Logout error:', err.message);
+    res.status(500).json({ message: 'Something went wrong' });
+  }
 };
 
-module.exports = { register, login, logout };
+const getMe = (req, res) => {
+  res.status(200).json({ user: req.user });
+};
+
+module.exports = { register, login, logout, getMe };
