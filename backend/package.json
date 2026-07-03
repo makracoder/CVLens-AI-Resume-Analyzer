@@ -12,12 +12,14 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@cyber2024/pdf-parse-fixed": "^1.2.5",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
+    "mammoth": "^1.12.0",
     "mongoose": "^9.7.3",
     "multer": "^2.2.0",
     "uuid": "^14.0.1"
