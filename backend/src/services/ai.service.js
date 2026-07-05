@@ -1,5 +1,22 @@
 const model = require('../config/gemini');
 
+const cleanAndParseJSON = (text) => {
+  // Gemini sometimes wraps response in ```json ... ``` even when told not to
+  // This strips that out before parsing
+  const cleaned = text
+    .replace(/```json/g, '')
+    .replace(/```/g, '')
+    .trim();
+
+  try {
+    return JSON.parse(cleaned);
+  } catch (err) {
+    console.error('Failed to parse Gemini response:', cleaned);
+    throw new Error('Gemini returned invalid JSON');
+  }
+};
+
+
 const analyzeResume = async (resumeText, jobDescription = null) => {
   const jdSection = jobDescription
     ? `Job Description to match against:\n${jobDescription}`
@@ -34,21 +51,41 @@ Return this exact JSON structure:
 
   return cleanAndParseJSON(text);
 };
+const generateInterviewQuestions = async (resumeText, jobDescription = null, difficulty = 'mixed') => {
+  const jdSection = jobDescription
+    ? `Job Description:\n${jobDescription}`
+    : 'No job description provided. Generate questions based on the resume only.';
 
-const cleanAndParseJSON = (text) => {
-  // Gemini sometimes wraps response in ```json ... ``` even when told not to
-  // This strips that out before parsing
-  const cleaned = text
-    .replace(/```json/g, '')
-    .replace(/```/g, '')
-    .trim();
+  const prompt = `
+You are an expert technical interviewer.
 
-  try {
-    return JSON.parse(cleaned);
-  } catch (err) {
-    console.error('Failed to parse Gemini response:', cleaned);
-    throw new Error('Gemini returned invalid JSON');
-  }
+Based on the resume and job description below, generate 10 interview questions.
+Return a JSON response ONLY. No markdown, no backticks, no explanation outside the JSON.
+
+Resume:
+${resumeText}
+
+${jdSection}
+
+Difficulty level requested: ${difficulty} (easy/medium/hard/mixed)
+
+Return this exact JSON structure:
+{
+  "questions": [
+    {
+      "question": "<the interview question>",
+      "difficulty": "<easy|medium|hard>",
+      "category": "<technical|behavioral|project-based|situational>",
+      "modelAnswer": "<a concise model answer outline, 3-5 sentences>"
+    }
+  ]
+}
+`;
+
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
+  return cleanAndParseJSON(text);
 };
 
-module.exports = { analyzeResume };
+module.exports = { analyzeResume, generateInterviewQuestions };
+

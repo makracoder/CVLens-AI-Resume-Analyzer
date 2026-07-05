@@ -20,11 +20,11 @@ const runAnalysis = async (req, res) => {
       return res.status(404).json({ message: 'Resume not found' });
     }
 
-    if (resume.status !== 'parsed') {
-      return res.status(400).json({
-        message: 'Resume must be parsed before analysis. Hit /parse first.',
-      });
-    }
+    if (resume.status === 'uploaded') {
+  return res.status(400).json({
+    message: 'Resume must be parsed before analysis. Hit /parse first.',
+  });
+}
 
     // call Gemini
     const aiResult = await analyzeResume(resume.extractedText, jobDescription);
