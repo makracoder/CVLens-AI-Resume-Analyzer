@@ -50,7 +50,7 @@ const UploadSection = ({ onAnalysisComplete }) => {
       const analysisData = await runAnalysis(resumeId, jobDescription || null);
 
       setStatus('Done!');
-      onAnalysisComplete(analysisData.analysis, resumeId);
+      onAnalysisComplete(analysisData.analysis, resumeId, jobDescription);
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong');
       setStatus('');
