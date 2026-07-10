@@ -43,7 +43,7 @@ const resumeRoutes = require('./routes/resume.routes');
 const analysisRoutes = require('./routes/analysis.routes');
 const interviewRoutes = require('./routes/interview.routes');
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: process.env.FRONTEND_URL,
   credentials: true,
 }));
 app.use('/api/auth', authRoutes);
