@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { uploadResume, parseResume } from '../api/resume';
+import { uploadResume } from '../api/resume';
 import { runAnalysis } from '../api/analysis';
 
 const UploadSection = ({ onAnalysisComplete }) => {
