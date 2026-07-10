@@ -27,38 +27,33 @@ const UploadSection = ({ onAnalysisComplete }) => {
   };
 
   const handleAnalyze = async () => {
-    if (!file) {
-      setError('Please select a resume file first');
-      return;
-    }
+  if (!file) {
+    setError('Please select a resume file first');
+    return;
+  }
 
-    setLoading(true);
-    setError('');
+  setLoading(true);
+  setError('');
 
-    try {
-      // step 1 - upload
-      setStatus('Uploading resume...');
-      const uploadData = await uploadResume(file);
-      const resumeId = uploadData.resume.id;
+  try {
+    // step 1 - upload + parse combined
+    setStatus('Uploading resume...');
+    const uploadData = await uploadResume(file);
+    const resumeId = uploadData.resume.id;
 
-      // step 2 - parse
-      setStatus('Extracting text from resume...');
-      await parseResume(resumeId);
+    // step 2 - analyse
+    setStatus('Analyzing with AI...');
+    const analysisData = await runAnalysis(resumeId, jobDescription || null);
 
-      // step 3 - analyse
-      setStatus('Analyzing with AI...');
-      const analysisData = await runAnalysis(resumeId, jobDescription || null);
-
-      setStatus('Done!');
-      onAnalysisComplete(analysisData.analysis, resumeId, jobDescription);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Something went wrong');
-      setStatus('');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+    setStatus('Done!');
+    onAnalysisComplete(analysisData.analysis, resumeId, jobDescription);
+  } catch (err) {
+    setError(err.response?.data?.message || 'Something went wrong');
+    setStatus('');
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div style={styles.container}>
       <h3 style={styles.heading}>Upload Your Resume</h3>
