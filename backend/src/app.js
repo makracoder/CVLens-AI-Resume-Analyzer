@@ -42,7 +42,10 @@ const authRoutes = require('./routes/auth.routes');
 const resumeRoutes = require('./routes/resume.routes');
 const analysisRoutes = require('./routes/analysis.routes');
 const interviewRoutes = require('./routes/interview.routes');
-
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true,
+}));
 app.use('/api/auth', authRoutes);
 app.use('/api/resume', resumeRoutes);
 app.use('/api/analysis', analysisRoutes);
