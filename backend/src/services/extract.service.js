@@ -1,18 +1,9 @@
-const fs = require('fs');
-const path = require('path');
 const pdfParse = require('@cyber2024/pdf-parse-fixed');
 const mammoth = require('mammoth');
 
-const extractText = async (filePath, mimeType) => {
-  const absolutePath = path.resolve(filePath);
-
-  if (!fs.existsSync(absolutePath)) {
-    throw new Error('File not found at path: ' + absolutePath);
-  }
-
+const extractText = async (buffer, mimeType) => {
   if (mimeType === 'application/pdf') {
-    const dataBuffer = fs.readFileSync(absolutePath);
-    const data = await pdfParse(dataBuffer);
+    const data = await pdfParse(buffer);
     return data.text;
   }
 
@@ -20,7 +11,7 @@ const extractText = async (filePath, mimeType) => {
     mimeType ===
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
   ) {
-    const result = await mammoth.extractRawText({ path: absolutePath });
+    const result = await mammoth.extractRawText({ buffer });
     return result.value;
   }
 
